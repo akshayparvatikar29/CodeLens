@@ -9,122 +9,149 @@
 body {
   font-family: "Segoe UI", Arial;
   margin:0;
-  background:#f5f7fb;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
 }
 
+/* HEADER */
+.header {
+  background:linear-gradient(90deg,#2563eb,#4f46e5);
+  color:white;
+  padding:18px 30px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* LAYOUT */
 .container {
   display:flex;
 }
 
+/* SIDEBAR */
 .sidebar {
-  width:260px;
+  width:280px;
   background:#ffffff;
   padding:20px;
   border-right:1px solid #e5e7eb;
 }
 
-.main {
-  flex:1;
-  padding:30px;
+.section-title {
+  font-size:14px;
+  font-weight:bold;
+  margin-top:20px;
+  margin-bottom:8px;
+  color:#6b7280;
 }
 
+/* INPUT */
 .input-box {
   display:flex;
   gap:10px;
-  margin-top:10px;
 }
 
 .input-box input {
   flex:1;
   padding:10px;
+  border-radius:10px;
   border:1px solid #ccc;
-  border-radius:8px;
 }
 
 .input-box button {
   background:#2563eb;
   color:white;
   border:none;
-  padding:10px 16px;
-  border-radius:8px;
+  padding:10px 14px;
+  border-radius:10px;
   cursor:pointer;
 }
 
-.cards {
+/* STATS */
+.stat-box {
   display:flex;
-  gap:20px;
-  margin-top:20px;
+  justify-content:space-between;
+  background:#f1f5f9;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  font-size:14px;
 }
 
-.card {
+/* FILE LIST */
+.file-item {
+  padding:8px;
+  border-radius:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.file-item:hover {
+  background:#eef2ff;
+}
+
+.file-icon {
+  color:#2563eb;
+}
+
+/* SUGGESTIONS */
+.suggestion {
+  background:#ecfdf5;
+  padding:8px;
+  border-radius:8px;
+  font-size:13px;
+  margin-bottom:6px;
+}
+
+/* MAIN */
+.main {
   flex:1;
-  padding:20px;
-  border-radius:12px;
-  font-weight:bold;
+  padding:30px;
 }
 
+/* KEEP EXISTING STYLES SAME BELOW */
+.cards { display:flex; gap:20px; margin-top:20px; }
+.card { flex:1; padding:20px; border-radius:14px; font-weight:bold; }
 .files { background:#dbeafe; }
 .modules { background:#dcfce7; }
 .complexity { background:#fef3c7; }
 
 .summary {
   margin-top:20px;
-  background:#2563eb;
+  background:linear-gradient(90deg,#2563eb,#4f46e5);
   color:white;
   padding:20px;
-  border-radius:12px;
+  border-radius:14px;
 }
 
-/* GRAPH */
 .graph {
   margin-top:25px;
   background:white;
   padding:20px;
-  border-radius:12px;
+  border-radius:14px;
 }
 
-/* RELATION PANEL UPGRADE */
 .relation-card {
-  background:#f9fafb;
+  background:#ffffff;
   padding:12px;
-  margin-bottom:10px;
+  margin-bottom:12px;
   border-radius:10px;
   border-left:4px solid #3b82f6;
 }
 
-.relation-title {
-  font-weight:bold;
-  color:#111827;
-}
-
-.relation-desc {
-  font-size:13px;
-  color:#4b5563;
-  margin-top:4px;
-}
-
-/* FILE */
 .file-card {
   background:white;
   padding:20px;
   margin-top:15px;
-  border-radius:12px;
+  border-radius:14px;
 }
 
-.file-card ul {
-  padding-left:20px;
-}
+.file-card ul { padding-left:20px; }
 
-.file-card li {
-  margin-bottom:6px;
-}
-
-/* CHAT */
 .chat-box {
   margin-top:30px;
   background:white;
   padding:20px;
-  border-radius:12px;
+  border-radius:14px;
 }
 
 .chat-box textarea {
@@ -143,49 +170,57 @@ body {
   background:#16a34a;
   color:white;
   border-radius:8px;
-  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">🚀 CodeLens</div>
+
 <div class="container">
 
+<!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>🔍 CodeLens</h2>
 
-  <div class="input-box">
-    <input id="repo-url" placeholder="Enter GitHub URL"/>
-    <button onclick="analyzeRepo()">Analyze</button>
-  </div>
+<h2>🔍 Analyze Repo</h2>
 
-  <h3 style="margin-top:20px;">Files</h3>
-  <div id="file-list"></div>
+<div class="input-box">
+  <input id="repo-url" placeholder="Paste GitHub URL"/>
+  <button onclick="analyzeRepo()">Analyze</button>
 </div>
 
+<!-- 🔥 NEW: QUICK STATS -->
+<div class="section-title">📊 Quick Stats</div>
+<div class="stat-box">Files <span id="file-count">-</span></div>
+<div class="stat-box">Modules <span id="module-count">-</span></div>
+<div class="stat-box">Complexity <span id="complexity">-</span></div>
+
+<!-- 🔥 FILE LIST -->
+<div class="section-title">📂 Files</div>
+<div id="file-list"></div>
+
+<!-- 🔥 NEW: SMART SUGGESTIONS -->
+<div class="section-title">🧠 Smart Insights</div>
+<div class="suggestion">Try asking: "What is entry point?"</div>
+<div class="suggestion">Try: "Explain architecture"</div>
+<div class="suggestion">Try: "What does auth.py do?"</div>
+
+</div>
+
+<!-- MAIN -->
 <div class="main">
 
 <h1>AI Code Intelligence Dashboard</h1>
 
-<div class="cards">
-  <div class="card files">Files: <span id="file-count">-</span></div>
-  <div class="card modules">Modules: <span id="module-count">-</span></div>
-  <div class="card complexity">Complexity: <span id="complexity">-</span></div>
-</div>
-
 <div id="repo-summary" class="summary"></div>
 
-<!-- GRAPH -->
 <div class="graph">
   <h3>Architecture Graph</h3>
-
   <div style="display:flex; gap:20px;">
     <div id="network" style="flex:2; height:320px;"></div>
-
-    <!-- 🔥 UPGRADED PANEL -->
     <div style="flex:1;">
-      <h4 style="margin-bottom:10px;">📊 Relationship Insights</h4>
+      <h4>📊 Relationship Insights</h4>
       <div id="relations"></div>
     </div>
   </div>
@@ -194,10 +229,10 @@ body {
 <div id="file-explanations"></div>
 
 <div class="chat-box">
-  <h3>💬 Ask AI about this repo</h3>
+  <h3>💬 Ask AI</h3>
   <textarea id="question"></textarea>
-  <button onclick="askAI()">Ask AI</button>
-  <div id="answer" style="margin-top:10px;"></div>
+  <button onclick="askAI()">Ask</button>
+  <div id="answer"></div>
 </div>
 
 </div>
@@ -209,17 +244,14 @@ function cleanName(path) {
   return path.replace("repo_clone/", "");
 }
 
-// 🔥 CLEAN BULLETS
 function formatExplanation(text) {
   text = text.replace(/\*\*/g, "");
   const lines = text.split("\n").filter(l => l.trim() !== "");
-
   let html = "<ul>";
   lines.forEach(line => {
     html += `<li>${line.replace("-", "").trim()}</li>`;
   });
   html += "</ul>";
-
   return html;
 }
 
@@ -240,98 +272,58 @@ async function analyzeRepo() {
   document.getElementById("module-count").innerText = data.files.length;
   document.getElementById("complexity").innerText = "LOW";
 
-  // FILE LIST
   const fileList = document.getElementById("file-list");
   fileList.innerHTML = "";
 
   data.files.forEach(f => {
     const div = document.createElement("div");
-    div.innerText = cleanName(f.file);
+    div.className = "file-item";
+    div.innerHTML = `<span class="file-icon">📄</span> ${cleanName(f.file)}`;
     fileList.appendChild(div);
   });
 
-  // FILE EXPLANATION
   const container = document.getElementById("file-explanations");
   container.innerHTML = "";
 
   data.files.forEach(f => {
     const card = document.createElement("div");
     card.className = "file-card";
-    card.innerHTML = `
-      <h4>${cleanName(f.file)}</h4>
-      ${formatExplanation(f.explanation)}
-    `;
+    card.innerHTML = `<h4>${cleanName(f.file)}</h4>${formatExplanation(f.explanation)}`;
     container.appendChild(card);
   });
 
-  // GRAPH
   const nodes = [];
   const edges = [];
 
   data.files.forEach((f, i) => {
-    nodes.push({
-      id:i,
-      label: cleanName(f.file),
-      shape:"dot",
-      size:22,
-      color:"#3b82f6"
-    });
-
-    if(i>0){
-      edges.push({
-        from:i-1,
-        to:i,
-        smooth:true,
-        color:"#94a3b8"
-      });
-    }
+    nodes.push({ id:i, label: cleanName(f.file) });
+    if(i>0) edges.push({ from:i-1, to:i });
   });
 
   new vis.Network(
     document.getElementById("network"),
     { nodes, edges },
-    {
-      physics:{
-        barnesHut:{ gravitationalConstant:-2500 }
-      },
-      interaction:{
-        zoomView:false
-      }
-    }
+    { interaction:{ zoomView:false } }
   );
 
-  // 🔥 RELATION PANEL (UPGRADED)
   let relHTML = "";
-
   for(let i=0;i<data.files.length-1;i++){
-    const source = cleanName(data.files[i].file);
-    const target = cleanName(data.files[i+1].file);
-
-    relHTML += `
-      <div class="relation-card">
-        <div class="relation-title">${source} → ${target}</div>
-        <div class="relation-desc">
-          ${source} interacts with ${target} as part of execution flow.
-        </div>
-      </div>
-    `;
+    const s = cleanName(data.files[i].file);
+    const t = cleanName(data.files[i+1].file);
+    relHTML += `<div class="relation-card"><b>${s} → ${t}</b></div>`;
   }
 
   document.getElementById("relations").innerHTML = relHTML;
 }
 
-// CHAT
 async function askAI() {
   const q = document.getElementById("question").value;
-
   const res = await fetch("/chat", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ question: q })
   });
-
   const data = await res.json();
-
   document.getElementById("answer").innerText = data.answer;
 }
 
