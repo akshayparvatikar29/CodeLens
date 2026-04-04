@@ -28,11 +28,6 @@ body {
   padding:30px;
 }
 
-h1 {
-  margin-bottom:10px;
-}
-
-/* INPUT SECTION */
 .input-box {
   display:flex;
   gap:10px;
@@ -55,11 +50,6 @@ h1 {
   cursor:pointer;
 }
 
-.input-box button:hover {
-  background:#1d4ed8;
-}
-
-/* CARDS */
 .cards {
   display:flex;
   gap:20px;
@@ -77,14 +67,12 @@ h1 {
 .modules { background:#dcfce7; }
 .complexity { background:#fef3c7; }
 
-/* SUMMARY */
 .summary {
   margin-top:20px;
   background:#2563eb;
   color:white;
   padding:20px;
   border-radius:12px;
-  font-size:15px;
 }
 
 /* GRAPH */
@@ -95,20 +83,34 @@ h1 {
   border-radius:12px;
 }
 
-/* FILE CARDS */
+/* RELATION PANEL UPGRADE */
+.relation-card {
+  background:#f9fafb;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border-left:4px solid #3b82f6;
+}
+
+.relation-title {
+  font-weight:bold;
+  color:#111827;
+}
+
+.relation-desc {
+  font-size:13px;
+  color:#4b5563;
+  margin-top:4px;
+}
+
+/* FILE */
 .file-card {
   background:white;
   padding:20px;
   margin-top:15px;
   border-radius:12px;
-  line-height:1.6;
 }
 
-.file-card h4 {
-  margin-bottom:10px;
-}
-
-/* BULLETS */
 .file-card ul {
   padding-left:20px;
 }
@@ -143,10 +145,6 @@ h1 {
   border-radius:8px;
   cursor:pointer;
 }
-
-.chat-box button:hover {
-  background:#15803d;
-}
 </style>
 </head>
 
@@ -154,7 +152,6 @@ h1 {
 
 <div class="container">
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <h2>🔍 CodeLens</h2>
 
@@ -167,7 +164,6 @@ h1 {
   <div id="file-list"></div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
 <h1>AI Code Intelligence Dashboard</h1>
@@ -183,18 +179,23 @@ h1 {
 <!-- GRAPH -->
 <div class="graph">
   <h3>Architecture Graph</h3>
+
   <div style="display:flex; gap:20px;">
-    <div id="network" style="flex:2; height:300px;"></div>
-    <div id="relations" style="flex:1; font-size:14px;"></div>
+    <div id="network" style="flex:2; height:320px;"></div>
+
+    <!-- 🔥 UPGRADED PANEL -->
+    <div style="flex:1;">
+      <h4 style="margin-bottom:10px;">📊 Relationship Insights</h4>
+      <div id="relations"></div>
+    </div>
   </div>
 </div>
 
 <div id="file-explanations"></div>
 
-<!-- CHAT -->
 <div class="chat-box">
   <h3>💬 Ask AI about this repo</h3>
-  <textarea id="question" placeholder="Ask anything about this codebase..."></textarea>
+  <textarea id="question"></textarea>
   <button onclick="askAI()">Ask AI</button>
   <div id="answer" style="margin-top:10px;"></div>
 </div>
@@ -208,18 +209,15 @@ function cleanName(path) {
   return path.replace("repo_clone/", "");
 }
 
-// 🔥 FORMAT FILE OUTPUT CLEANLY
+// 🔥 CLEAN BULLETS
 function formatExplanation(text) {
-  text = text.replace(/\*\*/g, ""); // remove **
-
+  text = text.replace(/\*\*/g, "");
   const lines = text.split("\n").filter(l => l.trim() !== "");
 
   let html = "<ul>";
-
   lines.forEach(line => {
     html += `<li>${line.replace("-", "").trim()}</li>`;
   });
-
   html += "</ul>";
 
   return html;
@@ -252,23 +250,21 @@ async function analyzeRepo() {
     fileList.appendChild(div);
   });
 
-  // FILE EXPLANATIONS (FIXED FORMAT)
+  // FILE EXPLANATION
   const container = document.getElementById("file-explanations");
   container.innerHTML = "";
 
   data.files.forEach(f => {
     const card = document.createElement("div");
     card.className = "file-card";
-
     card.innerHTML = `
       <h4>${cleanName(f.file)}</h4>
       ${formatExplanation(f.explanation)}
     `;
-
     container.appendChild(card);
   });
 
-  // GRAPH (IMPROVED LOOK)
+  // GRAPH
   const nodes = [];
   const edges = [];
 
@@ -277,17 +273,18 @@ async function analyzeRepo() {
       id:i,
       label: cleanName(f.file),
       shape:"dot",
-      size:20,
-      color:"#3b82f6",
-      font:{ color:"#000", size:14 }
+      size:22,
+      color:"#3b82f6"
     });
 
-    if(i>0) edges.push({
-      from:i-1,
-      to:i,
-      color:"#94a3b8",
-      smooth:true
-    });
+    if(i>0){
+      edges.push({
+        from:i-1,
+        to:i,
+        smooth:true,
+        color:"#94a3b8"
+      });
+    }
   });
 
   new vis.Network(
@@ -295,19 +292,29 @@ async function analyzeRepo() {
     { nodes, edges },
     {
       physics:{
-        stabilization:true,
-        barnesHut:{ gravitationalConstant:-2000 }
+        barnesHut:{ gravitationalConstant:-2500 }
       },
       interaction:{
-        zoomView:false  // ❌ removed zoom
+        zoomView:false
       }
     }
   );
 
-  // RELATIONS
+  // 🔥 RELATION PANEL (UPGRADED)
   let relHTML = "";
+
   for(let i=0;i<data.files.length-1;i++){
-    relHTML += `<div>${cleanName(data.files[i].file)} → ${cleanName(data.files[i+1].file)}</div>`;
+    const source = cleanName(data.files[i].file);
+    const target = cleanName(data.files[i+1].file);
+
+    relHTML += `
+      <div class="relation-card">
+        <div class="relation-title">${source} → ${target}</div>
+        <div class="relation-desc">
+          ${source} interacts with ${target} as part of execution flow.
+        </div>
+      </div>
+    `;
   }
 
   document.getElementById("relations").innerHTML = relHTML;
