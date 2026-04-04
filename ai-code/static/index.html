@@ -16,7 +16,6 @@ body {
   display:flex;
 }
 
-/* SIDEBAR */
 .sidebar {
   width:260px;
   background:#ffffff;
@@ -24,40 +23,43 @@ body {
   border-right:1px solid #e5e7eb;
 }
 
-.sidebar h2 {
-  margin-bottom:10px;
-}
-
-input {
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  margin-bottom:10px;
-  border:1px solid #ccc;
-  border-radius:6px;
-}
-
-button {
-  width:100%;
-  padding:10px;
-  background:#2f6fed;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-button:hover {
-  background:#1d4ed8;
-}
-
-/* MAIN */
 .main {
   flex:1;
   padding:30px;
 }
 
-/* DASHBOARD CARDS */
+h1 {
+  margin-bottom:10px;
+}
+
+/* INPUT SECTION */
+.input-box {
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.input-box input {
+  flex:1;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+.input-box button {
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.input-box button:hover {
+  background:#1d4ed8;
+}
+
+/* CARDS */
 .cards {
   display:flex;
   gap:20px;
@@ -69,7 +71,6 @@ button:hover {
   padding:20px;
   border-radius:12px;
   font-weight:bold;
-  font-size:16px;
 }
 
 .files { background:#dbeafe; }
@@ -79,28 +80,25 @@ button:hover {
 /* SUMMARY */
 .summary {
   margin-top:20px;
-  background:#2f6fed;
+  background:#2563eb;
   color:white;
   padding:20px;
   border-radius:12px;
-  line-height:1.6;
+  font-size:15px;
 }
+
 /* GRAPH */
 .graph {
-  margin-top:20px;
+  margin-top:25px;
   background:white;
   padding:20px;
   border-radius:12px;
-}
-
-#network {
-  height:250px;
 }
 
 /* FILE CARDS */
 .file-card {
   background:white;
-  padding:18px;
+  padding:20px;
   margin-top:15px;
   border-radius:12px;
   line-height:1.6;
@@ -110,20 +108,44 @@ button:hover {
   margin-bottom:10px;
 }
 
+/* BULLETS */
+.file-card ul {
+  padding-left:20px;
+}
+
+.file-card li {
+  margin-bottom:6px;
+}
+
 /* CHAT */
 .chat-box {
-  margin-top:25px;
+  margin-top:30px;
   background:white;
   padding:20px;
   border-radius:12px;
 }
 
-textarea {
+.chat-box textarea {
   width:100%;
   height:80px;
-  margin-top:10px;
-  margin-bottom:10px;
   padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+.chat-box button {
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  background:#16a34a;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.chat-box button:hover {
+  background:#15803d;
 }
 </style>
 </head>
@@ -136,8 +158,10 @@ textarea {
 <div class="sidebar">
   <h2>🔍 CodeLens</h2>
 
-  <input id="repo-url" placeholder="Enter GitHub URL"/>
-  <button onclick="analyzeRepo()">Analyze Repository</button>
+  <div class="input-box">
+    <input id="repo-url" placeholder="Enter GitHub URL"/>
+    <button onclick="analyzeRepo()">Analyze</button>
+  </div>
 
   <h3 style="margin-top:20px;">Files</h3>
   <div id="file-list"></div>
@@ -148,45 +172,57 @@ textarea {
 
 <h1>AI Code Intelligence Dashboard</h1>
 
-<!-- DASHBOARD -->
 <div class="cards">
   <div class="card files">Files: <span id="file-count">-</span></div>
   <div class="card modules">Modules: <span id="module-count">-</span></div>
   <div class="card complexity">Complexity: <span id="complexity">-</span></div>
 </div>
 
-<!-- SUMMARY -->
 <div id="repo-summary" class="summary"></div>
 
 <!-- GRAPH -->
 <div class="graph">
   <h3>Architecture Graph</h3>
-  <div id="network"></div>
+  <div style="display:flex; gap:20px;">
+    <div id="network" style="flex:2; height:300px;"></div>
+    <div id="relations" style="flex:1; font-size:14px;"></div>
+  </div>
 </div>
 
-<!-- FILE DETAILS -->
 <div id="file-explanations"></div>
 
 <!-- CHAT -->
 <div class="chat-box">
   <h3>💬 Ask AI about this repo</h3>
-  <textarea id="question" placeholder="Ask something..."></textarea>
-  <button onclick="askAI()">Ask</button>
+  <textarea id="question" placeholder="Ask anything about this codebase..."></textarea>
+  <button onclick="askAI()">Ask AI</button>
   <div id="answer" style="margin-top:10px;"></div>
 </div>
 
 </div>
 </div>
-<script>
 
-let globalData = null;
+<script>
 
 function cleanName(path) {
   return path.replace("repo_clone/", "");
 }
 
-function cleanText(text) {
-  return text.replace(/\*\*/g, "");  // remove **
+// 🔥 FORMAT FILE OUTPUT CLEANLY
+function formatExplanation(text) {
+  text = text.replace(/\*\*/g, ""); // remove **
+
+  const lines = text.split("\n").filter(l => l.trim() !== "");
+
+  let html = "<ul>";
+
+  lines.forEach(line => {
+    html += `<li>${line.replace("-", "").trim()}</li>`;
+  });
+
+  html += "</ul>";
+
+  return html;
 }
 
 async function analyzeRepo() {
@@ -199,88 +235,92 @@ async function analyzeRepo() {
   });
 
   const data = await res.json();
-  globalData = data;
 
-  // SUMMARY
   document.getElementById("repo-summary").innerText = data.repo_summary;
+
+  document.getElementById("file-count").innerText = data.files.length;
+  document.getElementById("module-count").innerText = data.files.length;
+  document.getElementById("complexity").innerText = "LOW";
 
   // FILE LIST
   const fileList = document.getElementById("file-list");
   fileList.innerHTML = "";
+
   data.files.forEach(f => {
     const div = document.createElement("div");
     div.innerText = cleanName(f.file);
     fileList.appendChild(div);
   });
 
-  // DASHBOARD
-  document.getElementById("file-count").innerText = data.files.length;
-  document.getElementById("module-count").innerText = data.files.length;
-  document.getElementById("complexity").innerText = "LOW";
-
-  // FILE DETAILS
+  // FILE EXPLANATIONS (FIXED FORMAT)
   const container = document.getElementById("file-explanations");
   container.innerHTML = "";
 
   data.files.forEach(f => {
-
-    const lines = cleanText(f.explanation)
-      .split("\n")
-      .filter(l => l.trim().startsWith("-"));
-
-    const bullets = lines.map(l => `<li>${l.replace("-", "").trim()}</li>`).join("");
-
     const card = document.createElement("div");
     card.className = "file-card";
 
     card.innerHTML = `
       <h4>${cleanName(f.file)}</h4>
-      <ul>${bullets}</ul>
+      ${formatExplanation(f.explanation)}
     `;
 
     container.appendChild(card);
   });
 
-  // GRAPH
+  // GRAPH (IMPROVED LOOK)
   const nodes = [];
   const edges = [];
 
   data.files.forEach((f, i) => {
-    nodes.push({ id:i, label: cleanName(f.file) });
-    if(i>0) edges.push({ from:i-1, to:i });
+    nodes.push({
+      id:i,
+      label: cleanName(f.file),
+      shape:"dot",
+      size:20,
+      color:"#3b82f6",
+      font:{ color:"#000", size:14 }
+    });
+
+    if(i>0) edges.push({
+      from:i-1,
+      to:i,
+      color:"#94a3b8",
+      smooth:true
+    });
   });
 
-  const containerGraph = document.getElementById("network");
-
-  const graphData = {
-    nodes: new vis.DataSet(nodes),
-    edges: new vis.DataSet(edges)
-  };
-
-  const options = {
-    physics:false,   // ❌ disable zoom movement
-    interaction:{ zoomView:false },  // ❌ disable zoom
-    nodes:{
-      size:14
+  new vis.Network(
+    document.getElementById("network"),
+    { nodes, edges },
+    {
+      physics:{
+        stabilization:true,
+        barnesHut:{ gravitationalConstant:-2000 }
+      },
+      interaction:{
+        zoomView:false  // ❌ removed zoom
+      }
     }
-  };
+  );
 
+  // RELATIONS
+  let relHTML = "";
+  for(let i=0;i<data.files.length-1;i++){
+    relHTML += `<div>${cleanName(data.files[i].file)} → ${cleanName(data.files[i+1].file)}</div>`;
+  }
 
-  new vis.Network(containerGraph, graphData, options);
+  document.getElementById("relations").innerHTML = relHTML;
 }
 
-
-// ASK AI
+// CHAT
 async function askAI() {
   const q = document.getElementById("question").value;
 
-  const res = await fetch("/ask", {
+  const res = await fetch("/chat", {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      question:q,
-      context:globalData
-    })
+    body: JSON.stringify({ question: q })
   });
 
   const data = await res.json();
