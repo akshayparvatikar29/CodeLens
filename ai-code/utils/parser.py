@@ -1,6 +1,5 @@
 import os
 
-# ✅ Supported file types (UPDATED)
 VALID_EXTENSIONS = [
     ".py", ".js", ".ts", ".java", ".go",
     ".rb",        # ✅ CRITICAL FIX (your repo)
@@ -9,7 +8,6 @@ VALID_EXTENSIONS = [
     ".json", ".yml", ".yaml"
 ]
 
-# ✅ Ignore junk folders
 EXCLUDE_DIRS = [".git", "__pycache__", "node_modules", "venv"]
 
 
@@ -17,7 +15,7 @@ def get_code_files(repo_path):
     code_files = []
 
     for root, dirs, files in os.walk(repo_path):
-        # remove excluded dirs
+
         dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
 
         for file in files:
