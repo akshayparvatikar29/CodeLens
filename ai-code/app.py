@@ -11,7 +11,6 @@ from utils.ai_helper import explain_code_chunk, summarize_repo
 
 app = FastAPI()
 
-# ✅ Serve static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 CLONE_DIR = "repo_clone"
@@ -27,7 +26,6 @@ def clean_clone_dir():
     os.makedirs(CLONE_DIR, exist_ok=True)
 
 
-# 🔥 ROOT ROUTE (SERVE YOUR index.html)
 @app.get("/")
 def home():
     return FileResponse("static/index.html")
@@ -75,7 +73,6 @@ def analyze_repo(request: RepoRequest):
     }
 
 
-# 🔥 ASK AI (FIXED)
 @app.post("/ask")
 def ask_question(payload: dict = Body(...)):
     question = payload.get("question")
