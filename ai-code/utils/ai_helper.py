@@ -2,7 +2,7 @@ import os
 from groq import Groq
 from dotenv import load_dotenv
 
-# Load environment variables
+
 load_dotenv()
 
 api_key = os.getenv("GROQ_API_KEY")
@@ -12,14 +12,12 @@ if not api_key:
 
 client = Groq(api_key=api_key)
 
-# ✅ Stable models (fallback support)
 MODELS = [
     "llama-3.1-8b-instant",
     "llama-3.1-70b-versatile"
 ]
 
 
-# 🔥 Core Groq caller (safe + fallback)
 def call_groq(messages, max_tokens=300):
     last_error = None
 
@@ -44,7 +42,6 @@ def call_groq(messages, max_tokens=300):
     return f"AI failed: {last_error}"
 
 
-# ✅ FILE EXPLANATION (CLEAN BULLETS)
 def explain_code_chunk(code, file_path):
     messages = [
         {
@@ -75,7 +72,7 @@ Code:
     ]
 
     return call_groq(messages, max_tokens=300)
-# ✅ REPO SUMMARY (STRICT 2 SENTENCES)
+
 def summarize_repo(file_summaries):
     combined = "\n\n".join(file_summaries[:5])
 
